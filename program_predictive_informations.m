@@ -1,4 +1,4 @@
-import retina_cell.m
+import retina_cell
 
 
 width = 360; %pixel
@@ -10,7 +10,7 @@ velocity = [0,0]; %startvelocity [v_x,v_y] in pixel per timestep
 x_history = [];
 y_history = [];
 signal_history = {};
-duration_experiment = 200; %timesteps
+duration_experiment = 50; %timesteps
 
 
 
@@ -21,8 +21,8 @@ for i = 1:duration_experiment
     y_history = [y_history,position(2)];
     
     %create picture
-    bar_pixel = compute_bar_pixel(position, bar_width, bar_height);
-    pic = create_picture(bar_pixel, width, height);
+    black_pixel = compute_bar_pixel(position, bar_width, bar_height);
+    pic = create_picture(black_pixel, width, height);
     
     %create signal for the actual position
     signal = create_signal(pic);
@@ -31,7 +31,7 @@ for i = 1:duration_experiment
     %plot graphs
     plot(y_history)
 end
-pause(5);
+pause(1);
 close;
 
 
@@ -63,12 +63,12 @@ function bar_pixel = compute_bar_pixel(position, bar_width, bar_height)
     end
 end
 
-function pic = create_picture(obj_pixel, width, height) %obj_pixel is a structure array with all pixel coordinates which belongs to the object
+function pic = create_picture(black_pixel, width, height) %black_pixel is a structure array with all pixel coordinates which belongs to the object
     pic = zeros(height,width) + 128;
     
-    for i = 1:length(obj_pixel)
-        x = obj_pixel{i}(1) + width/2;
-        y = obj_pixel{i}(2) + height/2;
+    for i = 1:length(black_pixel)
+        x = black_pixel{i}(1) + width/2;
+        y = black_pixel{i}(2) + height/2;
         pic(y,x) = 0;
     end
     

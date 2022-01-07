@@ -1,0 +1,22 @@
+classdef retina_cell
+    properties
+        center_position
+        radius
+    end
+    methods
+        function obj = retina_cell(center_position, radius)
+            obj.centerposition = center_position;
+            obj.radius = radius;
+        end
+        
+        function d = dist(position1, position2)
+                d = sqrt((position1(1) - position2(1))^2 + (position1(2) - position2(2))^2)
+        end
+        
+        function is_inside = is_inside_radius(position)
+            if obj.dist(centerpo
+                
+            end
+        end
+    end
+end

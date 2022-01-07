@@ -9,14 +9,14 @@ velocity = [0,0]; %startvelocity [v_x,v_y] in pixel per timestep
 x_history = [];
 y_history = [];
 signal_history = {};
-duration_experiment = 20; %timesteps
-number_cells = 30;
+duration_experiment = 50; %timesteps
+number_cells = 50;
 maximum_radius_cells = 40;
 
 
 %create cells
-cell_creating_struct = create_cell_creating_struct(number_cells,height,width,maximum_radius_cells);
-retina_cells = create_retina_cells(cell_creating_struct);
+cell_creating_struct = create_cell_creating_struct(number_cells,height,maximum_radius_cells);
+create_retina_cells(cell_creating_struct);
 
 
 for i = 1:duration_experiment
@@ -52,11 +52,11 @@ velocity(2) = (1 - gamma * 1) * velocity(2) - omega^2 * position(2)*1 + xi * sqr
 
 end
 
-function cell_creating_struct = create_cell_creating_struct(Number,picture_width,picture_height,max_radius)
+function cell_creating_struct = create_cell_creating_struct(Number,picture_width,picture_height)
 
     for i = 1:Number
         cell_creating_struct{i}.position = [round(rand * picture_width - 1) , round(rand * picture_height - 1)];
-        cell_creating_struct{i}.radius = rand * max_radius;
+        cell_creating_struct{i}.radius = rand * 10;
     end
 end
 
@@ -64,7 +64,7 @@ function retina_cells = create_retina_cells(cell_creating_struct)
     for i = 1:length(cell_creating_struct)
         center_position = cell_creating_struct{i}.position;
         radius = cell_creating_struct{i}.radius;
-        retina_cells{i} = retina_cell(center_position,radius);
+        retina_cells{1} = retina_cells(center_position,radius);
     end
 end
 

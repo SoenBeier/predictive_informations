@@ -2,11 +2,13 @@ classdef retina_cell
     properties
         center_position 
         radius %area in the radius around the center_position is covered by the cell
+        color
     end
     methods
         function obj = retina_cell(center_position, radius)
             obj.center_position = center_position;
             obj.radius = radius;
+            obj.color = rand()*90 + 10;
         end
        
         function is_inside = is_inside_radius(obj,position) %is the position [x,y] inside the area covered by the retina cell

@@ -2,12 +2,14 @@ classdef retina_cell
     properties
         center_position 
         radius %area in the radius around the center_position is covered by the cell
-        color 
+        color %color of cell at the picture
+        pixel_data %pixel (structure) of obj which will be painted with obj.color at the picture {[x1,y1],[x2,y2],...}
     end
     methods
         function obj = retina_cell(center_position, radius)
             obj.center_position = center_position;
             obj.radius = radius;
+            obj.color = rand()*90 + 10;
         end
        
         function is_inside = is_inside_radius(obj,position) %is the position [x,y] inside the area covered by the retina cell
@@ -26,6 +28,17 @@ classdef retina_cell
                 end
             end
             gives_signal = false;
+        end
+        
+        function pixel_data = get_obj_pixels(obj) %gives pixel structure ({[x1,y1],[x2,y2],...}) which will represent the obj in the image
+            pixel_data = {};
+            i = 1;
+            for phi = 0:0.1:2*pi-0.1
+                x = obj.center_position(1) + obj.radius * cos(phi);
+                y = obj.center_position(2) + obj.radius * sin(phi);
+                pixel_data{i} = [x,y];
+                i = i + 1;
+            end
         end
     end
     methods (Static)

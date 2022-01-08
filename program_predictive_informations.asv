@@ -9,14 +9,16 @@ velocity = [0,0]; %startvelocity [v_x,v_y] in pixel per timestep
 x_history = [];
 y_history = [];
 signal_history = {};
-duration_experiment = 50; %timesteps
-number_cells = 50;
-maximum_radius_cells = 40;
+duration_experiment = 200; %timesteps
+number_cells = 40;
+minimum_radius_cells = 50;
+maximum_radius_cells = 150;
+cell_position_area = []; %[center,radius of area
 
 
 %create cells
-cell_creating_struct = create_cell_creating_struct(number_cells,height,maximum_radius_cells);
-create_retina_cells(cell_creating_struct);
+cell_creating_struct = create_cell_creating_struct(number_cells,width,height,minimum_radius_cells,maximum_radius_cells);
+retina_cells = create_retina_cells(cell_creating_struct);
 
 
 for i = 1:duration_experiment
@@ -28,15 +30,18 @@ for i = 1:duration_experiment
     %create picture
     black_pixel = compute_bar_pixel(position, bar_width, bar_height);
     pic = create_picture(width, height);
-    pic = add_pixel_to_picture(pic,black_pixel,0);
-    imshow(pic);
+    for i = 1:length(retina_cells)
+        pic = add_pixel_to_picture(pic,retina_cells{i}.pixel_data,retina_cells{i}.color,width,height);
+    end
+    pic = add_pixel_to_picture(pic,black_pixel,0,width,height);
+    imshow(pic,[0,128]);
     
     %create signal for the actual position
     signal = create_signal(pic);
     signal_history{i} = signal; 
     
     %plot graphs
-    plot(y_history)
+    %plot(y_history)
 end
 pause(1);
 close;
@@ -52,23 +57,25 @@ velocity(2) = (1 - gamma * 1) * velocity(2) - omega^2 * position(2)*1 + xi * sqr
 
 end
 
-function cell_creating_struct = create_cell_creating_struct(Number,picture_width,picture_height)
+function cell_creating_struct = create_cell_creating_struct(Number,picture_width,picture_height,min_radius,max_radius)
 
     for i = 1:Number
-        cell_creating_struct{i}.position = [round(rand * picture_width - 1) , round(rand * picture_height - 1)];
-        cell_creating_struct{i}.radius = rand * 10;
+        x = round((rand * (picture_width - 2) + 1) - picture_width/2);
+        y = round((rand * (picture_height - 2) + 1) - picture_height/2);
+        cell_creating_struct{i}.position = [x,y];
+        cell_creating_struct{i}.radius = rand * (max_radius-min_radius) + min_radius;
     end
 end
 
-function retina_cells = create_retina_cells(cell_creating_struct)
+function retina_cells = create_retina_cells(cell_creating_struct)%creating a structure with the retina cell objs
     for i = 1:length(cell_creating_struct)
         center_position = cell_creating_struct{i}.position;
         radius = cell_creating_struct{i}.radius;
-        retina_cells{1} = retina_cells(center_position,radius);
+        retina_cells{i} = retina_cell(center_position,radius);
     end
 end
 
-function bar_pixel = compute_bar_pixel(position, bar_width, bar_height)
+function bar_pixel = compute_bar_pixel(position, bar_width, bar_height) %create structure with the coordinates/pixels of the bar
     start_x = round(position(1) - bar_width/2);
     end_x = round(position(1) + bar_width/2 - 1);
     start_y = round(position(2) - bar_height/2);
@@ -83,21 +90,21 @@ function bar_pixel = compute_bar_pixel(position, bar_width, bar_height)
     end
 end
 
-function pic = create_picture(width, height)
+function pic = create_picture(width, height)%create white picture
     pic = zeros(height,width) + 128; % 128 = white
-end
+end 
 
-function pic = add_pixel_to_picture(pic, pixel_data, color_value) %draw new pixel into the pic; pixel_data has format: {[x,y],[x2,y2],...}
-    height = size(pic,1);
-    width = size(pic,2);
-    
+function pic = add_pixel_to_picture(pic, pixel_data, color_value,width,height) %draw new pixel into the pic; pixel_data has format: {[x,y],[x2,y2],...}
     for i = 1:length(pixel_data)
-        x = pixel_data{i}(1) + width/2;
-        y = pixel_data{i}(2) + height/2;
-        pic(y,x) = color_value;
+        x = round(pixel_data{i}(1) + width/2);
+        y = round(pixel_data{i}(2) + height/2);
+        
+        if y > 0 & x > 0 & y < height & x < width
+            pic(y,x) = color_value;
+        end
     end
 end
 
 function signal = create_signal(pic)
-    signal = []
+    signal = [];
 end

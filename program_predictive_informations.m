@@ -9,8 +9,8 @@ velocity = [0,0]; %startvelocity [v_x,v_y] in pixel per timestep
 x_history = [];
 y_history = [];
 signal_word_history = {};
-duration_experiment = 100; %timesteps
-number_cells = 30;
+duration_experiment = 1000; %timesteps
+number_cells = 40;
 minimum_radius_cells = 50;
 maximum_radius_cells = 100;
 cell_position_area = {[0,0],100}; %{[xcenter,ycenter],radius} of area in which the cells will be created
@@ -38,13 +38,22 @@ for i = 1:duration_experiment
     
     %create signal for the actual position
     word = create_signal_word(bar_pixel,retina_cells);
-    signal_word_history{i} = word; 
+    signal_word_history{i,1} = word; 
 end
 
+[signal_word_history,sentence] = encode_words_consecutively(signal_word_history);
 %plot graphs
-plot(y_history)
-pause(1);
-close;
+
+figure('Name','y coordinate and signal word history')
+hold on;
+plot(y_history);
+plot(sentence,'-o');
+legend('y coordinate', 'signal word history');
+hold off;
+
+
+%pause(1);
+%close;
 
 function [position,velocity] = compute_next_position(position, velocity) %compute next position of bar
 xi = random('Normal',0,1);
@@ -111,4 +120,27 @@ function word = create_signal_word(pixel_struct,retina_cells) %create signal_wor
     for i = 1:length(retina_cells)
         word = [word, retina_cells{i}.gives_signal_V1(pixel_struct)];
     end
+end
+function [signal_word_history,sentence] = encode_words_consecutively(signal_word_history) %takes signal_word_history as a struct with entries signal_word_history{i,1} = [words]; gives the second row with signal_word_history{i,2} = index word; same words get same number,sentence is the concatenation of numbers in an array
+    sentence = [];
+    for i = 1:length(signal_word_history)
+        signal_word_history{i,2} = "None";
+    end
+    
+    k = 1;
+    for i = 1:length(signal_word_history)
+        for j = 1:length(signal_word_history)
+            if isequal(signal_word_history{i,1},signal_word_history{j,1})
+                signal_word_history{i,2} = signal_word_history{j,2};
+                break
+            end            
+        end
+        if isequal(signal_word_history{i,2}, "None")
+            signal_word_history{i,2} = k;
+            k = k + 1;
+        end
+        sentence = [sentence,signal_word_history{i,2}];
+    end
+end
+function mutal_information(sentence,y_history)
 end

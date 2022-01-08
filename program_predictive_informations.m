@@ -8,7 +8,7 @@ position = [0,0]; %startposition [x,y] in pixel
 velocity = [0,0]; %startvelocity [v_x,v_y] in pixel per timestep
 x_history = [];
 y_history = [];
-signal_history = {};
+signal_word_history = {};
 duration_experiment = 100; %timesteps
 number_cells = 30;
 minimum_radius_cells = 50;
@@ -28,21 +28,21 @@ for i = 1:duration_experiment
     y_history = [y_history,position(2)];
     
     %create picture
-    black_pixel = compute_bar_pixel(position, bar_width, bar_height);
+    bar_pixel = compute_bar_pixel(position, bar_width, bar_height);
     pic = create_picture(width, height);
-    for i = 1:length(retina_cells)
-        pic = add_pixel_to_picture(pic,retina_cells{i}.pixel_data,retina_cells{i}.color,width,height);
+    for j = 1:length(retina_cells)
+        pic = add_pixel_to_picture(pic,retina_cells{j}.pixel_data,retina_cells{j}.color,width,height);
     end
-    pic = add_pixel_to_picture(pic,black_pixel,0,width,height);
+    pic = add_pixel_to_picture(pic,bar_pixel,0,width,height);
     imshow(pic,[0,128]);
     
     %create signal for the actual position
-    signal = create_signal(pic);
-    signal_history{i} = signal; 
-    
-    %plot graphs
-    %plot(y_history)
+    word = create_signal_word(bar_pixel,retina_cells);
+    signal_word_history{i} = word; 
 end
+
+%plot graphs
+plot(y_history)
 pause(1);
 close;
 
@@ -56,7 +56,6 @@ position(2) = round(position(2) + velocity(2) * 1);
 velocity(2) = (1 - gamma * 1) * velocity(2) - omega^2 * position(2)*1 + xi * sqrt(D*1);
 
 end
-
 function cell_creating_struct = create_cell_creating_struct(Number,picture_width,picture_height,min_radius,max_radius,cell_position_area)
 
     for i = 1:Number
@@ -73,7 +72,6 @@ function cell_creating_struct = create_cell_creating_struct(Number,picture_width
         cell_creating_struct{i}.radius = rand * (max_radius-min_radius) + min_radius;
     end
 end
-
 function retina_cells = create_retina_cells(cell_creating_struct)%creating a structure with the retina cell objs
     for i = 1:length(cell_creating_struct)
         center_position = cell_creating_struct{i}.position;
@@ -81,7 +79,6 @@ function retina_cells = create_retina_cells(cell_creating_struct)%creating a str
         retina_cells{i} = retina_cell(center_position,radius);
     end
 end
-
 function bar_pixel = compute_bar_pixel(position, bar_width, bar_height) %create structure with the coordinates/pixels of the bar
     start_x = round(position(1) - bar_width/2);
     end_x = round(position(1) + bar_width/2 - 1);
@@ -96,11 +93,9 @@ function bar_pixel = compute_bar_pixel(position, bar_width, bar_height) %create 
         end
     end
 end
-
 function pic = create_picture(width, height)%create white picture
     pic = zeros(height,width) + 128; % 128 = white
 end 
-
 function pic = add_pixel_to_picture(pic, pixel_data, color_value,width,height) %draw new pixel into the pic; pixel_data has format: {[x,y],[x2,y2],...}
     for i = 1:length(pixel_data)
         x = round(pixel_data{i}(1) + width/2);
@@ -111,7 +106,9 @@ function pic = add_pixel_to_picture(pic, pixel_data, color_value,width,height) %
         end
     end
 end
-
-function signal = create_signal(pic)
-    signal = [];
+function word = create_signal_word(pixel_struct,retina_cells) %create signal_word of current time step, pixel_struct = {[x1,y1],[x2,y2],..}
+    word = [];
+    for i = 1:length(retina_cells)
+        word = [word, retina_cells{i}.gives_signal_V1(pixel_struct)];
+    end
 end

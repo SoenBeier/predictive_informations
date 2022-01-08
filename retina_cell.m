@@ -12,12 +12,10 @@ classdef retina_cell
             obj.color = round(rand()*90 + 10);
             obj.pixel_data = get_obj_pixel_data(obj);
         end
-       
 
-        
-        function gives_signal = gives_signal_V1(obj,black_pixel)
-            for i = 1:length(black_pixel)
-                if obj.dist(black_pixel{i}, obj.center_position) < obj.radius
+        function gives_signal = gives_signal_V1(obj,pixel_struct)
+            for i = 1:length(pixel_struct)
+                if obj.dist(pixel_struct{i}, obj.center_position) < obj.radius
                     gives_signal = true;
                     return
                 end

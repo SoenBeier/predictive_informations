@@ -25,7 +25,7 @@ classdef retina_cell
             pixel_data = {};
             pixel_data{1} = [obj.center_position(1),obj.center_position(2)];
             i = 2;
-            for phi = 0:0.1:2*pi-0.1
+            for phi = 0:0.01:2*pi-0.01
                 x = round(obj.center_position(1) + obj.radius * cos(phi));
                 y = round(obj.center_position(2) + obj.radius * sin(phi));
                 pixel_data{i} = [x,y];

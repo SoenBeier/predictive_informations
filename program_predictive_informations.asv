@@ -1,15 +1,11 @@
 import retina_cell
 
+graphic = false;
 width = 360; %pixel
 height = 600; %pixel
 bar_width = 11;
 bar_height = 1;
-position = [0,0]; %startposition [x,y] in pixel
-velocity = [0,0]; %startvelocity [v_x,v_y] in pixel per timestep
-x_history = [];
-y_history = [];
-signal_word_history = {};
-number_of_runs = 1;
+number_of_runs = 100;
 duration_experiment = 100; %timesteps
 number_cells = 40;
 minimum_radius_cells = 50;
@@ -28,6 +24,10 @@ else
 end
 
 for h = 1:number_of_runs
+    position = [0,0]; %startposition [x,y] in pixel
+    velocity = [0,0]; %startvelocity [v_x,v_y] in pixel per timestep
+    x_history = [];
+    y_history = [];
     for i = 1:duration_experiment
         %compute next positions
         [position,velocity] = compute_next_position(position,velocity);
@@ -35,20 +35,23 @@ for h = 1:number_of_runs
     
         %create picture
         bar_pixel = compute_bar_pixel(position, bar_width, bar_height);
-        pic = create_picture(width, height);
-        for j = 1:length(retina_cells)
-            pic = add_pixel_to_picture(pic,retina_cells{j}.pixel_data,retina_cells{j}.color,width,height);
+        if graphic
+            pic = create_picture(width, height);
+            for j = 1:length(retina_cells)
+                pic = add_pixel_to_picture(pic,retina_cells{j}.pixel_data,retina_cells{j}.color,width,height);
+            end
+            pic = add_pixel_to_picture(pic,bar_pixel,0,width,height);
+            imshow(pic,[0,128]);
         end
-        pic = add_pixel_to_picture(pic,bar_pixel,0,width,height);
-        imshow(pic,[0,128]);
     
         %create signal for the actual position
         word = create_signal_word(bar_pixel,retina_cells);
         word_history_struct.decoded{h,i} = word; 
     end
-    y_history_struct{h}  = y_history;
+    y_history_struct{h,1} = y_history;
 end
 
+word_history_struct = encode_words(word_history_struct);
 %[signal_word_history,sentence] = encode_words_consecutively(signal_word_history);
 %count_array_words = count_of_numbers(sentence);
 %count_array_y_coordinates = count_of_numbers(y_history);
@@ -177,6 +180,30 @@ function word = create_signal_word(pixel_struct,retina_cells) %create signal_wor
     end
 end
 
+function word_history_struct = encode_words(word_history_struct); %assigns an encoding (number) to each different word and save it in word_history_struct.encoded
+    %%initialisation encoded structure
+    for i = 1:size(word_history_struct.decoded,1) %different runs
+        for j = 1:size(word_history_struct.decoded,2) %different words in a sentence 
+            word_history_struct.encoded{i,j} = "None";
+        end
+    end
+    
+    %%assignment numbers to different words
+    word_number = 1;
+    for i = 1:size(word_history_struct.decoded,1) %different runs
+        for j = 1:size(word_history_struct.decoded,2) %different words in a sentence
+            for k = 1:i %different runs -> for each word -> is there another word like this?
+                for l = 1:size(word_history_struct.decoded,2) %different words in a sentence
+                    if isequal(word_history_struct.decoded{i,j},word_history_struct.decoded{k,l}
+                        word_history_struct.encoded{i,j} = word_history_struct.encoded{k,l};
+                        break;
+                    end
+                end
+            end
+            
+        end
+    end  
+end
 
 function [signal_word_history,sentence] = encode_words_consecutively_old(signal_word_history) %takes signal_word_history as a struct with entries signal_word_history{i,1} = [words]; gives the second row with signal_word_history{i,2} = index word; same words get same number,sentence is the concatenation of numbers in an array
     sentence = [];

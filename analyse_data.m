@@ -1,0 +1,36 @@
+
+function P_W = prob_word_wt_at_time_t(wt,t,word_history_struct) %probabilaty, that word wt ist at time t
+    count_wt = 0;
+    for i = 1:size(word_history_struct.encoded,1) %browse through all experiments
+        if word_history_struct.encoded(i,t) == wt
+            count_wt = count_wt + 1;
+        end
+    end
+    P_W = count_wt / size(word_history_struct.encoded,1);
+end
+
+function P_X = prob_position_xt_at_time_t(xt,t,y_history_array)
+    count_xt = 0;
+    for i = 1:size(y_history_array,1) %browse through all experiments
+        if y_history_array(i,t) == xt
+            count_xt = count_xt + 1;
+        end
+    end
+    P_X = count_xt / size(word_history_struct.encoded,1);
+end
+
+function P_X_conditional = prob_position_xt_at_time_t_when_wT_was_at_T(xt,t,wT,T,word_history_struct,y_history_array) %probability that at time t the position is xt under the condition that at time T there was the signal wT
+    count_wT = 0; %count of experiments with wT at time T
+    count_xt_with_wT = 0; %count of experiments with xt at t when wT at T
+    for i = 1:size(word_history_struct.encoded,1) %browse through all experiments
+        if word_history_struct.encoded(i,T) == wT
+            if y_history_array(i,t) == xt
+                 count_xt_with_wT = count_xt_with_wT + 1;
+            else
+                count_wT = count_wT + 1;
+            end
+        end
+    end
+    P_X_conditional = count_xt_with_wT / count_wT;
+end
+

@@ -1,11 +1,13 @@
 import retina_cell
 
 graphic = false;
+position = [0,0]; %startposition [x,y] in pixel
+velocity = [0,0]; %startvelocity [v_x,v_y] in pixel per timestep
 width = 360; %pixel
 height = 600; %pixel
 bar_width = 11;
 bar_height = 1;
-number_of_runs = 100;
+number_of_runs = 300;
 duration_experiment = 100; %timesteps
 number_cells = 40;
 minimum_radius_cells = 50;
@@ -24,8 +26,6 @@ else
 end
 
 for h = 1:number_of_runs
-    position = [0,0]; %startposition [x,y] in pixel
-    velocity = [0,0]; %startvelocity [v_x,v_y] in pixel per timestep
     x_history = [];
     y_history = [];
     for i = 1:duration_experiment
@@ -48,10 +48,11 @@ for h = 1:number_of_runs
         word = create_signal_word(bar_pixel,retina_cells);
         word_history_struct.decoded{h,i} = word; 
     end
-    y_history_struct{h,1} = y_history;
+    y_history_array(h,:) = y_history; %column: different experiments, one line: one experiment
 end
 
 word_history_struct = encode_words(word_history_struct);
+
 
 %plot graphs
 %figure('Name','y coordinate and signal word history')
@@ -178,11 +179,7 @@ end
 
 function word_history_struct = encode_words(word_history_struct); %assigns an encoding (number) to each different word and save it in word_history_struct.encoded
     %%initialisation encoded structure
-    for i = 1:size(word_history_struct.decoded,1) %different runs
-        for j = 1:size(word_history_struct.decoded,2) %different words in a sentence 
-            word_history_struct.encoded{i,j} = "None";
-        end
-    end
+    word_history_struct.encoded = NaN(size(word_history_struct.decoded,1),size(word_history_struct.decoded,2));
     
     %%assignment numbers to different words
     word_number = 1;
@@ -193,7 +190,7 @@ function word_history_struct = encode_words(word_history_struct); %assigns an en
             for k = 1:i %different runs -> for each word -> is there another word like this?
                 for l = 1:size(word_history_struct.decoded,2) %different words in a sentence
                     if isequal(word_history_struct.decoded{i,j},word_history_struct.decoded{k,l})
-                        word_history_struct.encoded{i,j} = word_history_struct.encoded{k,l};
+                        word_history_struct.encoded(i,j) = word_history_struct.encoded(k,l);
                         b2 = true; %to breack the second for loop
                         break;
                     end
@@ -204,13 +201,15 @@ function word_history_struct = encode_words(word_history_struct); %assigns an en
                 end
             end
             
-            if isequal(word_history_struct.encoded{i,j},"None")
-                word_history_struct.encoded{i,j} = word_number;
+            if isnan(word_history_struct.encoded(i,j))
+                word_history_struct.encoded(i,j) = word_number;
                 word_number = word_number + 1;
             end   
         end
     end  
 end
+
+
 
 function [signal_word_history,sentence] = encode_words_consecutively_old(signal_word_history) %takes signal_word_history as a struct with entries signal_word_history{i,1} = [words]; gives the second row with signal_word_history{i,2} = index word; same words get same number,sentence is the concatenation of numbers in an array
     sentence = [];

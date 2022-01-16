@@ -17,7 +17,7 @@ close;
 
 %create/load cells
 if exist("cells_data.mat") == 2 %to keep the settings of retina_cells the data of former runs will be loaded
-    load("cells_data");
+    load("cells_data.mat");
 elseif exist("cells_data.mat") == 0 %if no cells_data file exist new cells_data must be created
     cell_creating_struct = create_cell_creating_struct(number_cells,width,height,minimum_radius_cells,maximum_radius_cells,cell_position_area);
     retina_cells = create_retina_cells(cell_creating_struct);

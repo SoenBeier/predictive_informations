@@ -8,13 +8,15 @@ width = 360; %pixel
 height = 600; %pixel
 bar_width = 11;
 bar_height = 1;
-number_of_runs = 8000;
-duration_experiment = 100; %timesteps
+number_of_runs = 100;
+duration_experiment = 5000; %timesteps
 number_cells = 100;
 create_data_for_additionaly_cell_number = [5,10,20,40,70]; 
 minimum_radius_cells = 50;
 maximum_radius_cells = 60;
 y_history_list = [];
+y_history_array = [];
+word_history_struct = {};
 cell_position_area = {[0,0],100}; %{[xcenter,ycenter],radius} of area in which the cells will be created
 gamma = 20 / 60; %damping
 omega = 2*pi*1.5 /60; %natural frequency 
@@ -35,10 +37,12 @@ end
 for number_cells = [100,70,40,20,10,5] 
     retina_cells_old = retina_cells;
     retina_cells = {};
-    for q = 1:length(retina_cells_old)
+    for q = 1:number_cells
         retina_cells{q} = retina_cells_old{q}; 
     end
-    
+    y_history_list = [];
+    word_history_struct = {};
+    y_history_array = [];
 
 for h = 1:number_of_runs
     x_history = [];
@@ -67,7 +71,7 @@ for h = 1:number_of_runs
     
     y_history_array(h,:) = y_history; %column: different experiments, one line: one experiment
     
-    if mod(h,number_of_runs/50) == 0
+    if mod(h,number_of_runs/100) == 0
         fprintf(num2str(h) + ",");
     end
 end
@@ -77,7 +81,7 @@ fprintf("\n")
 
 %%save_data
 save("number_cells-" + num2str(number_cells) + "cells_data","retina_cells"); 
-save("number_cell-" + num2str(number_cells) +"data.mat","word_history_struct","y_history_array","y_history_list","number_cells","minimum_radius_cells","maximum_radius_cells","bar_width","bar_height","cell_position_area","gamma", "omega", "D");
+save("number_cell-" + num2str(number_cells) +"data.mat","word_history_struct","y_history_array","y_history_list","number_cells","minimum_radius_cells","maximum_radius_cells","bar_width","bar_height","cell_position_area","gamma", "omega", "D","duration_experiment");
 
 end
  

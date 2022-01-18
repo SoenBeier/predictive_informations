@@ -1,15 +1,18 @@
-load("data.mat");
+clear
+data_name = "number_cell-10data";
+load(data_name + ".mat");
 
+%% Mutual information
 mutual_information_array = [];
 Delta_t_array = [];
-t0 = 80; %time which will be considered as actual time
+t0 = 50; %time which will be considered as actual time
 a = [];
 b = [];
 c = [];
 d = [];
 
 
-for Delta_t = -80:1:20
+for Delta_t = -40:2:40
     mutual_information = 0;
     
     if t0 + Delta_t < 1 | t0 + Delta_t > size(word_history_struct.encoded,1)
@@ -35,14 +38,20 @@ for Delta_t = -80:1:20
         end
     end
     
-    mutual_information_array = [mutual_information_array,mutual_information];
-    Delta_t_array = [Delta_t_array,Delta_t];
+    mutual_information_array(end+1) = mutual_information;
+    Delta_t_array(end+1) = Delta_t;
     
     fprintf(num2str(Delta_t) + ";");
 end
 
+mi_figure = figure('name','mutual information');
+save(data_name + "mutual_information", "Delta_t_array", "mutual_information_array")
 plot(Delta_t_array,mutual_information_array);
+savefig(mi_figure,'mi - ' + data_name);
+close;
 
+
+%% Functions
 function P_W = prob_word_wt_at_time_t(wt,t,word_history_struct) %probabilaty, that word wt ist at time t
     count_wt = 0;
     for i = 1:size(word_history_struct.encoded,1) %browse through all experiments
@@ -75,4 +84,3 @@ function P_X_conditional = prob_position_xt_at_time_t_when_wT_was_at_T(xt,t,wT,T
     end
     P_X_conditional = count_xt_with_wT / count_wT;
 end
-

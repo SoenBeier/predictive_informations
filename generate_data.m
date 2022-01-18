@@ -1,6 +1,6 @@
 import retina_cell
 
-name_cells_data = "";
+name_cells_load_data = "";
 graphic = false;
 position = [0,0]; %startposition [x,y] in pixel
 velocity = [0,0]; %startvelocity [v_x,v_y] in pixel per timestep
@@ -25,15 +25,20 @@ close;
  
 
 %create/load cells
-if name_cells_data == ""
+if name_cells_load_data == ""
     cell_creating_struct = create_cell_creating_struct(number_cells,width,height,minimum_radius_cells,maximum_radius_cells,cell_position_area);
     retina_cells = create_retina_cells(cell_creating_struct);
 else
-    load(name_cells_data);
+    load(name_cells_load_data);
 end
 
 for number_cells = [100,70,40,20,10,5] 
-retina_cells = retina_cells{1:number_cells)     
+    retina_cells_old = retina_cells;
+    retina_cells = {};
+    for q = 1:length(retina_cells_old)
+        retina_cells{q} = retina_cells_old{q}; 
+    end
+    
 
 for h = 1:number_of_runs
     x_history = [];
@@ -68,7 +73,7 @@ for h = 1:number_of_runs
 end
 
 word_history_struct = encode_words(word_history_struct);
-
+fprintf("\n")
 
 %%save_data
 save("number_cells-" + num2str(number_cells) + "cells_data","retina_cells"); 

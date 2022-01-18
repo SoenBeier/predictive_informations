@@ -1,5 +1,6 @@
 import retina_cell
 
+name_cells_data = "";
 graphic = false;
 position = [0,0]; %startposition [x,y] in pixel
 velocity = [0,0]; %startvelocity [v_x,v_y] in pixel per timestep
@@ -7,31 +8,41 @@ width = 360; %pixel
 height = 600; %pixel
 bar_width = 11;
 bar_height = 1;
-number_of_runs = 10000;
+number_of_runs = 8000;
 duration_experiment = 100; %timesteps
-number_cells = 40;
+number_cells = 100;
+create_data_for_additionaly_cell_number = [5,10,20,40,70]; 
 minimum_radius_cells = 50;
-maximum_radius_cells = 100;
+maximum_radius_cells = 60;
+y_history_list = [];
 cell_position_area = {[0,0],100}; %{[xcenter,ycenter],radius} of area in which the cells will be created
+gamma = 20 / 60; %damping
+omega = 2*pi*1.5 /60; %natural frequency 
+D = 2.7e6 / 60^3; 
+
 close;
 
+ 
+
 %create/load cells
-if exist("cells_data.mat") == 2 %to keep the settings of retina_cells the data of former runs will be loaded
-    load("cells_data.mat");
-elseif exist("cells_data.mat") == 0 %if no cells_data file exist new cells_data must be created
+if name_cells_data == ""
     cell_creating_struct = create_cell_creating_struct(number_cells,width,height,minimum_radius_cells,maximum_radius_cells,cell_position_area);
     retina_cells = create_retina_cells(cell_creating_struct);
 else
-    error("saving error");
+    load(name_cells_data);
 end
+
+for number_cells = [100,70,40,20,10,5] 
+retina_cells = retina_cells{1:number_cells)     
 
 for h = 1:number_of_runs
     x_history = [];
     y_history = [];
     for i = 1:duration_experiment
         %compute next positions
-        [position,velocity] = compute_next_position(position,velocity);
-        y_history = [y_history,position(2)];
+        [position,velocity] = compute_next_position(position,velocity,gamma, omega, D);
+        y_history(end+1) = position(2);
+        y_history_list(end+1) = position(2);
     
         %create picture
         bar_pixel = compute_bar_pixel(position, bar_width, bar_height);
@@ -48,8 +59,9 @@ for h = 1:number_of_runs
         word = create_signal_word(bar_pixel,retina_cells);
         word_history_struct.decoded{h,i} = word; 
     end
+    
     y_history_array(h,:) = y_history; %column: different experiments, one line: one experiment
-
+    
     if mod(h,number_of_runs/50) == 0
         fprintf(num2str(h) + ",");
     end
@@ -58,41 +70,15 @@ end
 word_history_struct = encode_words(word_history_struct);
 
 
-%plot graphs
-%figure('Name','y coordinate and signal word history')
-%hold on;
-%plot(y_history);
-%plot(sentence,'-o');
-%legend('y coordinate', 'signal word history');
-%hold off;
-
-%figure('Name','count_array_words')
-%plot(count_array_words(:,2))
-
-%figure('Name','count_array_y_coordinates')
-%plot(count_array_y_coordinates(:,2))
-
 %%save_data
-%saving created retina_cells
-if exist("cells_data.mat") == 0 
-    save("cells_data","retina_cells"); 
-end
-%saving sentence
-if exist("data.mat") == 0 
-    save("data.mat","word_history_struct","y_history_array");
-elseif exist("data.mat") == 2
-else
-    error("saving error");
-end
+save("number_cells-" + num2str(number_cells) + "cells_data","retina_cells"); 
+save("number_cell-" + num2str(number_cells) +"data.mat","word_history_struct","y_history_array","y_history_list","number_cells","minimum_radius_cells","maximum_radius_cells","bar_width","bar_height","cell_position_area","gamma", "omega", "D");
 
-    
+end
  
 
-function [position,velocity] = compute_next_position(position, velocity) %compute next position of bar
+function [position,velocity] = compute_next_position(position, velocity, gamma, omega, D) %compute next position of bar
 xi = random('Normal',0,1);
-gamma = 20 / 60; %damping
-omega = 2*pi*1.5 /60; %natural frequency 
-D = 2.7e6 / 60^3; 
 
 position(2) = round(position(2) + velocity(2) * 1);
 velocity(2) = (1 - gamma * 1) * velocity(2) - omega^2 * position(2)*1 + xi * sqrt(D*1);
@@ -151,7 +137,7 @@ end
 function word = create_signal_word(pixel_struct,retina_cells) %create signal_word of current time step, pixel_struct = {[x1,y1],[x2,y2],..}
     word = [];
     for i = 1:length(retina_cells)
-        word = [word, retina_cells{i}.gives_signal_V1(pixel_struct)];
+        word(end+1) = retina_cells{i}.gives_signal_V1(pixel_struct);
     end
 end
 
@@ -184,5 +170,14 @@ function word_history_struct = encode_words(word_history_struct); %assigns an en
                 word_number = word_number + 1;
             end   
         end
-    end  
+    end
+    
+    word_history_struct.word_list = NaN(1,size(word_history_struct.encoded,1)*size(word_history_struct.encoded,2));
+    k = 1;
+    for i = 1:size(word_history_struct.encoded,1)
+        for j = 1:size(word_history_struct.encoded,2)
+            word_history_struct.word_list(k) = word_history_struct.encoded(i,j);
+            k = k + 1;
+        end
+    end
 end

@@ -8,10 +8,9 @@ width = 360; %pixel
 height = 600; %pixel
 bar_width = 11;
 bar_height = 1;
-number_of_runs = 100;
-duration_experiment = 5000; %timesteps
+number_of_runs = 5000;
+duration_experiment = 100; %timesteps
 number_cells = 100;
-create_data_for_additionaly_cell_number = [5,10,20,40,70]; 
 minimum_radius_cells = 50;
 maximum_radius_cells = 60;
 y_history_list = [];
@@ -71,7 +70,7 @@ for h = 1:number_of_runs
     
     y_history_array(h,:) = y_history; %column: different experiments, one line: one experiment
     
-    if mod(h,number_of_runs/100) == 0
+    if mod(h,number_of_runs/50) == 0
         fprintf(num2str(h) + ",");
     end
 end

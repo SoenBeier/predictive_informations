@@ -1,6 +1,6 @@
 import retina_cell
 
-name_cells_load_data = "";
+name_cells_load_data = "number_cells-10cells_data.mat";
 graphic = false;
 position = [0,0]; %startposition [x,y] in pixel
 velocity = [0,0]; %startvelocity [v_x,v_y] in pixel per timestep
@@ -9,8 +9,8 @@ height = 600; %pixel
 bar_width = 11;
 bar_height = 1;
 number_of_runs = 5000;
-duration_experiment = 100; %timesteps
-number_cells = 40;
+duration_experiment = 800; %timesteps
+number_cells = 10;
 minimum_radius_cells = 50;
 maximum_radius_cells = 60;
 y_history_list = [];
@@ -34,7 +34,6 @@ else
 end
 
 for h = 1:number_of_runs
-    x_history = [];
     y_history = [];
     for i = 1:duration_experiment
         %compute next positions
@@ -70,7 +69,7 @@ fprintf("\n")
 
 %%save_data
 save("number_cells-" + num2str(number_cells) + "cells_data","retina_cells"); 
-save("number_cell-" + num2str(number_cells) +"data.mat","word_history_struct","y_history_array","y_history_list","number_cells","minimum_radius_cells","maximum_radius_cells","bar_width","bar_height","cell_position_area","gamma", "omega", "D","duration_experiment");
+save("duration_experiment-" + num2str(duration_experiment) +"data.mat","word_history_struct","y_history_array","y_history_list","number_cells","minimum_radius_cells","maximum_radius_cells","bar_width","bar_height","cell_position_area","gamma", "omega", "D","duration_experiment");
 
  
 

@@ -2,7 +2,7 @@
 autocorr_array = [];
 
 for i = 1:size(y_history_array,1)
-    autocorr_array(i,:) = xcorr(y_history_array(i,:));
+    autocorr_array(i,:) = xcorr(y_history_array(i,:),'normalized');
     [a,lags] = xcorr(y_history_array(1,:));
 end
 

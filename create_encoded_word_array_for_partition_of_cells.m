@@ -1,0 +1,3 @@
+function partition_encoded = create_encoded_word_array_for_partition_of_cells(word_history_struct_encoded,number_cells)
+
+end

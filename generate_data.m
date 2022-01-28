@@ -9,7 +9,7 @@ height = 600; %pixel
 bar_width = 11;
 bar_height = 1;
 number_of_runs = 5000;
-duration_experiment = 800; %timesteps
+duration_experiment = 100; %timesteps
 number_cells = 10;
 minimum_radius_cells = 50;
 maximum_radius_cells = 60;
@@ -64,7 +64,7 @@ for h = 1:number_of_runs
     end
 end
 
-word_history_struct = encode_words(word_history_struct);
+word_history_struct.encoded = encode_words(word_history_struct.decoded);
 fprintf("\n")
 
 %%save_data
@@ -137,43 +137,3 @@ function word = create_signal_word(pixel_struct,retina_cells) %create signal_wor
     end
 end
 
-function word_history_struct = encode_words(word_history_struct); %assigns an encoding (number) to each different word and save it in word_history_struct.encoded
-    %%initialisation encoded structure
-    word_history_struct.encoded = NaN(size(word_history_struct.decoded,1),size(word_history_struct.decoded,2));
-    
-    %%assignment numbers to different words
-    word_number = 1;
-    b2 = false;
-    for i = 1:size(word_history_struct.decoded,1) %different runs
-        for j = 1:size(word_history_struct.decoded,2) %different words in a sentence
-            
-            for k = 1:i %different runs -> for each word -> is there another word like this?
-                for l = 1:size(word_history_struct.decoded,2) %different words in a sentence
-                    if isequal(word_history_struct.decoded{i,j},word_history_struct.decoded{k,l})
-                        word_history_struct.encoded(i,j) = word_history_struct.encoded(k,l);
-                        b2 = true; %to breack the second for loop
-                        break;
-                    end
-                end
-                if b2 == true
-                    b2 = false;
-                    break;
-                end
-            end
-            
-            if isnan(word_history_struct.encoded(i,j))
-                word_history_struct.encoded(i,j) = word_number;
-                word_number = word_number + 1;
-            end   
-        end
-    end
-    
-    word_history_struct.word_list = NaN(1,size(word_history_struct.encoded,1)*size(word_history_struct.encoded,2));
-    k = 1;
-    for i = 1:size(word_history_struct.encoded,1)
-        for j = 1:size(word_history_struct.encoded,2)
-            word_history_struct.word_list(k) = word_history_struct.encoded(i,j);
-            k = k + 1;
-        end
-    end
-end

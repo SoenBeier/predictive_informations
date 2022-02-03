@@ -1,14 +1,16 @@
 import retina_cell
 
 name_cells_load_data = "";
+prefix = "2Bars_bei_10_und_-10_"; % to add easily something to the name of the data file
 graphic = false;
-position = [0,0]; %startposition [x,y] in pixel
+position_obj1 = [10,0]; %startposition [x,y] in pixel
+position_obj2 = [-10,0]; %for 2 obj
 velocity = [0,0]; %startvelocity [v_x,v_y] in pixel per timestep
 width = 360; %pixel
 height = 600; %pixel
 bar_width = 11;
 bar_height = 1;
-number_of_runs = 3000;
+number_of_runs = 5000;
 duration_experiment = 100; %timesteps
 number_cells = 50;
 minimum_radius_cells = 50;
@@ -36,12 +38,16 @@ for h = 1:number_of_runs
     y_history = [];
     for i = 1:duration_experiment
         %compute next positions
-        [position,velocity] = compute_next_position(position,velocity,gamma, omega, D);
-        y_history(end+1) = position(2);
-        y_history_list(end+1) = position(2);
+        [position_obj1,velocity] = compute_next_position(position_obj1,velocity,gamma, omega, D);
+        [position_obj2,velocity] = compute_next_position(position_obj2,velocity,gamma, omega, D); %for 2 obj
+        
+        y_history(end+1) = position_obj1(2);
+        y_history_list(end+1) = position_obj1(2);
     
         %create picture
-        bar_pixel = compute_bar_pixel(position, bar_width, bar_height);
+        bar_pixel = compute_bar_pixel(position_obj1, bar_width, bar_height);
+        bar_pixel = [bar_pixel, compute_bar_pixel(position_obj2, bar_width, bar_height)]; %for 2 obj
+        
         if graphic
             pic = create_picture(width, height);
             for j = 1:length(retina_cells)
@@ -68,7 +74,7 @@ fprintf("\n")
 
 %%save_data
 save("number_cells-" + num2str(number_cells) + "cells_data","retina_cells"); 
-save("number_cells-" + num2str(number_cells) + "duration_experiment-" + num2str(duration_experiment) +"data.mat","word_history_struct","y_history_array","y_history_list","number_cells","minimum_radius_cells","maximum_radius_cells","bar_width","bar_height","cell_position_area","gamma", "omega", "D","duration_experiment");
+save(prefix +"number_cells-" + num2str(number_cells) + "duration_experiment-" + num2str(duration_experiment) +"data.mat","word_history_struct","y_history_array","y_history_list","number_cells","minimum_radius_cells","maximum_radius_cells","bar_width","bar_height","cell_position_area","gamma", "omega", "D","duration_experiment");
 
  
 
@@ -103,14 +109,17 @@ function retina_cells = create_retina_cells(cell_creating_struct)%creating a str
     end
 end
 function bar_pixel = compute_bar_pixel(position, bar_width, bar_height) %create structure with the coordinates/pixels of the bar
+    
+
     start_x = round(position(1) - bar_width/2);
     end_x = round(position(1) + bar_width/2 - 1);
     start_y = round(position(2) - bar_height/2);
     end_y = round(position(2) + bar_height/2 - 1);
     
     i = 1;
-    for x = start_x:end_x
-        for y = start_y:end_y
+    
+    for x = min([start_x,end_x]):max([start_x,end_x])
+        for y = min([start_y,end_y]):max([start_y,end_y])
             bar_pixel{i} = [x,y];
             i = i + 1;
         end

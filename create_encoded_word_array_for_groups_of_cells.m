@@ -45,7 +45,7 @@ function groups = create_encoded_word_array_for_groups_of_cells(word_history_str
     %% create encoded word array
     fprintf("create encoded word array for groups struct \n");
     for i = 1:size(groups,2)
-        groups(i).word_history_struct.encoded = encode_words(groups(i).word_history_struct.decoded);
+        [groups(i).word_history_struct.encoded,groups(i).word_history_struct.spikes_per_word] = encode_words(groups(i).word_history_struct.decoded);
         fprintf("finished generating encoded word struct to group " + i + " of " + size(groups,2) + "\n");
     end
     

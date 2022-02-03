@@ -1,6 +1,6 @@
 import retina_cell
 
-name_cells_load_data = "number_cells-10cells_data.mat";
+name_cells_load_data = "";
 graphic = false;
 position = [0,0]; %startposition [x,y] in pixel
 velocity = [0,0]; %startvelocity [v_x,v_y] in pixel per timestep
@@ -8,9 +8,9 @@ width = 360; %pixel
 height = 600; %pixel
 bar_width = 11;
 bar_height = 1;
-number_of_runs = 5000;
+number_of_runs = 3000;
 duration_experiment = 100; %timesteps
-number_cells = 10;
+number_cells = 50;
 minimum_radius_cells = 50;
 maximum_radius_cells = 60;
 y_history_list = [];
@@ -24,7 +24,6 @@ D = 2.7e6 / 60^3;
 close;
 
  
-
 %create/load cells
 if name_cells_load_data == ""
     cell_creating_struct = create_cell_creating_struct(number_cells,width,height,minimum_radius_cells,maximum_radius_cells,cell_position_area);
@@ -64,12 +63,12 @@ for h = 1:number_of_runs
     end
 end
 
-word_history_struct.encoded = encode_words(word_history_struct.decoded);
+[word_history_struct.encoded,word_history_struct.spikes_per_word] = encode_words(word_history_struct.decoded);
 fprintf("\n")
 
 %%save_data
 save("number_cells-" + num2str(number_cells) + "cells_data","retina_cells"); 
-save("duration_experiment-" + num2str(duration_experiment) +"data.mat","word_history_struct","y_history_array","y_history_list","number_cells","minimum_radius_cells","maximum_radius_cells","bar_width","bar_height","cell_position_area","gamma", "omega", "D","duration_experiment");
+save("number_cells-" + num2str(number_cells) + "duration_experiment-" + num2str(duration_experiment) +"data.mat","word_history_struct","y_history_array","y_history_list","number_cells","minimum_radius_cells","maximum_radius_cells","bar_width","bar_height","cell_position_area","gamma", "omega", "D","duration_experiment");
 
  
 

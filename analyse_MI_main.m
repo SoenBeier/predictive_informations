@@ -7,10 +7,11 @@ load(data_name + ".mat");
 t0 = 50; %time which will be considered as actual time
 range_Delta_t = [-40,40]; 
 Delta_t_step_size = 2;
+normalizing_information_per_spike = true;
 
 %% parameter for generating groups of cells
 number_groups = 25;
-number_cells_in_group = 1;
+number_cells_in_group = 5;
 
 %% computing MI for all cells
 fprintf("computing MI for all cells \n");
@@ -34,9 +35,12 @@ end
 %creating fig with MI of different cellgroups
 mi_figure = figure('name','mutual information of different cell groups');
 hold on
+legend_text = [];
 for i = 1:length(groupstruct)
     plot(Delta_t_cellarray{i},mutual_information_cellarray{i});
+    legend_text = [legend_text,num2str(i)];
 end
+legend(legend_text);
 hold off
 savefig(mi_figure,"MI_different_cell_groups_with_size" + num2str(number_cells_in_group) + "_" + data_name);
 close;

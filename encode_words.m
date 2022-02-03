@@ -1,13 +1,14 @@
-function word_history_struct_encoded = encode_words(word_history_struct_decoded); %assigns an encoding (number) to each different word and save it in word_history_struct_encoded
+function [word_history_struct_encoded,number_spikes_per_word] = encode_words(word_history_struct_decoded); %assigns an encoding (number) to each different word and save it in word_history_struct_encoded
     %%initialisation encoded structure
     word_history_struct_encoded = NaN(size(word_history_struct_decoded,1),size(word_history_struct_decoded,2));
+    number_spikes_per_word = NaN(size(word_history_struct_decoded,1),size(word_history_struct_decoded,2));
     
     %%assignment numbers to different words
     word_number = 1;
     b2 = false;
     for i = 1:size(word_history_struct_decoded,1) %different runs
         for j = 1:size(word_history_struct_decoded,2) %different words in a sentence
-            
+            number_spikes_per_word(i,j) = length(find(word_history_struct_decoded{i,j} == 1)); %counting spikes (1) per word
             for k = 1:i %different runs -> for each word -> is there another word like this?
                 for l = 1:size(word_history_struct_decoded,2) %different words in a sentence
                     if isequal(word_history_struct_decoded{i,j},word_history_struct_decoded{k,l})

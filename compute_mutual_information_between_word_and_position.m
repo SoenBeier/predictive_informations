@@ -26,24 +26,32 @@ for Delta_t = range_Delta_t(1):Delta_t_step_size:range_Delta_t(2)
             %b = [b,factor2];
             %c = [c,prob_position_xt_at_time_t(x,t0 + Delta_t,y_history_array)];
             %d = [d,factor3];
+            if normalize_per_spike == true
+                mean_number_spikes_at_t0 = mean(word_history_struct_spikes_per_word(:,t0));
+                if mean_number_spikes_at_t0 > 0
+                    new_summand = prob_word_wt_at_time_t(w,t0,word_history_struct_encoded) * factor2 * factor3 / mean_number_spikes_at_t0;
+                elseif mean_number_spikes_at_t0 == 0
+                    new_summand = 0;
+                end
+            else
+                new_summand = prob_word_wt_at_time_t(w,t0,word_history_struct_encoded) * factor2 * factor3;
+            end
+            
             
             if not(isnan(factor3) | isinf(factor3))
-                mutual_information = mutual_information + ...
-                prob_word_wt_at_time_t(w,t0,word_history_struct_encoded) * ...
-                factor2 * ...
-                factor3;
+                mutual_information = mutual_information + new_summand;
             end
         end
     end
     
-    if normalize_per_spike == true
-        mean_number_spikes_at_t0 = mean(word_history_struct_spikes_per_word(:,t0));
-        if mean_number_spikes_at_t0 > 0
-            mutual_information = mutual_information / mean_number_spikes_at_t0; %normalizing with the mean number of spikes at time t of the word
-        elseif mean_number_spikes_at_t0 == 0 % wenn es keinen Spike gab
-            mutual_information = 0;
-        end
-    end
+    %if normalize_per_spike == true
+    %    mean_number_spikes_at_t0 = mean(word_history_struct_spikes_per_word(:,t0));
+    %    if mean_number_spikes_at_t0 > 0
+    %        mutual_information = mutual_information / mean_number_spikes_at_t0; %normalizing with the mean number of spikes at time t of the word
+    %    elseif mean_number_spikes_at_t0 == 0 % wenn es keinen Spike gab
+    %        mutual_information = 0;
+    %    end
+    %end
     
     mutual_information_array(end+1) = mutual_information;
     Delta_t_array(end+1) = Delta_t;

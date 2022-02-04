@@ -11,7 +11,7 @@ normalizing_information_per_spike = true; %normalizing by mean of spikes which w
 
 %% parameter for generating groups of cells
 number_groups = 25;
-number_cells_in_group_array = [1,2,3,4,5,6,7,10,20]; %cell numbers for which we want to see a result
+number_cells_in_group_array = [1,2,3,4,5,6,7]; %cell numbers for which we want to see a result
 
 %% computing MI for all cells
 fprintf("computing MI for all cells \n");
@@ -26,6 +26,7 @@ close;
 
 %% computing a mean MI of different groups of cells
 mean_mutual_information_different_groupsize_array = []; %will be filled with mean mutual information for every cell number which are defined in number_cells_in_group_array
+std_error_MI_different_groupsize_array = [];
 
 for number_cells_in_group = number_cells_in_group_array
     groupstruct = create_encoded_word_array_for_groups_of_cells(word_history_struct.decoded,number_cells_in_group,number_groups);
@@ -54,30 +55,35 @@ for number_cells_in_group = number_cells_in_group_array
     %calculating mean
     fprintf("computing mean of MI for groups \n")
     mean_mutual_information = [];
+    std_error_MI = [];
     for j = 1:length(range_Delta_t(1):Delta_t_step_size:range_Delta_t(2))
-        sum_MI = 0;
+        temp_MI_list = [];
         for i = 1:length(groupstruct)
-            sum_MI = sum_MI + mutual_information_cellarray{i}(j);
+            temp_MI_list(end + 1) = mutual_information_cellarray{i}(j);
         end
-        mean_mutual_information(j) =  sum_MI / length(groupstruct);
+        mean_mutual_information(j) =  mean(temp_MI_list);
+        std_error_MI(j) = std(temp_MI_list)/sqrt(length(temp_MI_list));
     end
     
     %saving data for figure with different group sizes
     mean_mutual_information_different_groupsize_array(end + 1,:) = mean_mutual_information;
+    std_error_MI_different_groupsize_array(end + 1,:) = std_error_MI;
     
     %saving data from this groupsize
-    save("MI_of_groupstruct_of" + num2str(length(groupstruct)) + "_cell_groups_with_size" + num2str(number_cells_in_group) + "_" + data_name, "mutual_information_cellarray","Delta_t_cellarray","mean_mutual_information");
+    save("MI_of_groupstruct_of" + num2str(length(groupstruct)) + "_cell_groups_with_size" + num2str(number_cells_in_group) + "_" + data_name, "mutual_information_cellarray","Delta_t_cellarray","mean_mutual_information","std_error_MI");
     
-    fprintf("finished calculation for cell number " + string(number_cells_in_group) + "\n";
+    fprintf("finished calculation for cell number " + string(number_cells_in_group) + "\n");
 end
 
 %saving figure with mean MI of groups of cells with different sizes
 mi_figure = figure('name','mutual information of different cell groups');
 hold on
 for i = 1:size(mean_mutual_information_different_groupsize_array,1)
-    plot(Delta_t_cellarray{1},mean_mutual_information_different_groupsize_array(i,:));
+    errorbar(Delta_t_cellarray{1},mean_mutual_information_different_groupsize_array(i,:),std_error_MI_different_groupsize_array(i,:));
 end
 legend(string(number_cells_in_group_array));
+xlabel("\Delta t");
+ylabel("I(W_{t1};X_{t1+\Delta t} in bits/spike");
 hold off
 savefig(mi_figure,"MI_mean_of_" + num2str(length(groupstruct)) + "_cell_groups_for_different_sizes" + "_" + data_name);
 save("MI_mean_of_" + num2str(length(groupstruct)) + "_cell_groups_for_different_sizes" + "_" + data_name, "mean_mutual_information_different_groupsize_array","Delta_t_cellarray");

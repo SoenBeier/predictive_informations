@@ -1,18 +1,21 @@
 import retina_cell
 
-name_cells_load_data = "";
-prefix = "2Bars_bei_10_und_-10_"; % to add easily something to the name of the data file
+name_cells_load_data = "number_cells-10cells_data";
+prefix = "2Bars_bei_0_10_und_-10_"; % to add easily something to the name of the data file
 graphic = false;
-position_obj1 = [10,0]; %startposition [x,y] in pixel
-position_obj2 = [-10,0]; %for 2 obj
-velocity = [0,0]; %startvelocity [v_x,v_y] in pixel per timestep
+position_obj1 = [0,0]; %startposition [x,y] in pixel
+%position_obj2 = [-10,0]; %for 2 obj
+%position_obj3 = [0,0]; %for 2 obj
+velocity1 = [0,0]; %startvelocity [v_x,v_y] in pixel per timestep
+%velocity2 = [0,0]; %for 2 obj
+%velocity3 = [0,0]; %for 2 obj
 width = 360; %pixel
 height = 600; %pixel
 bar_width = 11;
 bar_height = 1;
-number_of_runs = 5000;
+number_of_runs = 10000;
 duration_experiment = 100; %timesteps
-number_cells = 50;
+number_cells = 10;
 minimum_radius_cells = 50;
 maximum_radius_cells = 60;
 y_history_list = [];
@@ -38,15 +41,17 @@ for h = 1:number_of_runs
     y_history = [];
     for i = 1:duration_experiment
         %compute next positions
-        [position_obj1,velocity] = compute_next_position(position_obj1,velocity,gamma, omega, D);
-        [position_obj2,velocity] = compute_next_position(position_obj2,velocity,gamma, omega, D); %for 2 obj
+        [position_obj1,velocity1] = compute_next_position(position_obj1,velocity1,gamma, omega, D);
+        %[position_obj2,velocity2] = compute_next_position(position_obj2,velocity2,gamma, omega, D); %for 2 obj
+        %[position_obj3,velocity3] = compute_next_position(position_obj3,velocity3,gamma, omega, D); %for 2 obj
         
         y_history(end+1) = position_obj1(2);
         y_history_list(end+1) = position_obj1(2);
     
         %create picture
         bar_pixel = compute_bar_pixel(position_obj1, bar_width, bar_height);
-        bar_pixel = [bar_pixel, compute_bar_pixel(position_obj2, bar_width, bar_height)]; %for 2 obj
+        %bar_pixel = [bar_pixel, compute_bar_pixel(position_obj2, bar_width, bar_height)]; %for 2 obj
+        %bar_pixel = [bar_pixel, compute_bar_pixel(position_obj3, bar_width, bar_height)]; %for 2 obj
         
         if graphic
             pic = create_picture(width, height);

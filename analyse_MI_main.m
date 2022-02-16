@@ -5,9 +5,9 @@ load(data_name + ".mat");
 
 %% parameter for calculating MI
 t0 = 50; %time which will be considered as actual time
-range_Delta_t = [-40,40]; 
+range_Delta_t = [-45,45]; 
 Delta_t_step_size = 2;
-normalizing_information_per_spike = true; %normalizing by mean of spikes which were recorded at the considered time step
+normalizing_information_per_spike = "cell_number"; %normalizing by mean of "spikes" or "cell_number" or false which were recorded at the considered time step
 
 %% parameter for generating groups of cells
 number_groups = 25;
@@ -15,7 +15,7 @@ number_cells_in_group_array = [1,2,3,4,5,6,7]; %cell numbers for which we want t
 
 %% computing MI for all cells
 fprintf("computing MI for all cells \n");
-[mutual_information_list, Delta_t_list] = compute_mutual_information_between_word_and_position(word_history_struct.encoded,y_history_array,t0,range_Delta_t,Delta_t_step_size,normalizing_information_per_spike,word_history_struct.spikes_per_word);
+[mutual_information_list, Delta_t_list] = compute_mutual_information_between_word_and_position(word_history_struct.encoded,y_history_array,t0,range_Delta_t,Delta_t_step_size,normalizing_information_per_spike,word_history_struct.spikes_per_word,length(word_history_struct.decoded{1,1}));
 
 save("MI_for_all_cells_" + data_name, "Delta_t_list", "mutual_information_list")
 
@@ -34,7 +34,7 @@ for number_cells_in_group = number_cells_in_group_array
 
     for i = 1:length(groupstruct)
         fprintf("\n computing MI of group " + i + " of " + length(groupstruct) + "\n");
-        [mutual_information_cellarray{i}, Delta_t_cellarray{i}] = compute_mutual_information_between_word_and_position(groupstruct(i).word_history_struct.encoded,y_history_array,t0,range_Delta_t,Delta_t_step_size,normalizing_information_per_spike,groupstruct(i).word_history_struct.spikes_per_word);
+        [mutual_information_cellarray{i}, Delta_t_cellarray{i}] = compute_mutual_information_between_word_and_position(groupstruct(i).word_history_struct.encoded,y_history_array,t0,range_Delta_t,Delta_t_step_size,normalizing_information_per_spike,groupstruct(i).word_history_struct.spikes_per_word,number_cells_in_group);
     end
 
     %creating fig with MI of different cellgroups

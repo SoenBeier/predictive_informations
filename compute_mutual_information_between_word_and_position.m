@@ -1,4 +1,4 @@
-function [mutual_information_array, Delta_t_array] = compute_mutual_information_between_word_and_position(word_history_struct_encoded,y_history_array,t0,range_Delta_t,Delta_t_step_size,normalize_per_spike,word_history_struct_spikes_per_word)
+function [mutual_information_array, Delta_t_array] = compute_mutual_information_between_word_and_position(word_history_struct_encoded,y_history_array,t0,range_Delta_t,Delta_t_step_size,normalize_per_spike,word_history_struct_spikes_per_word,number_cells_in_group)
 %normalizing_information_per_spike = true -> normalizing by mean of spikes which were recorded at the considered time step
 
 % Mutual information between location and signal word
@@ -26,14 +26,16 @@ for Delta_t = range_Delta_t(1):Delta_t_step_size:range_Delta_t(2)
             %b = [b,factor2];
             %c = [c,prob_position_xt_at_time_t(x,t0 + Delta_t,y_history_array)];
             %d = [d,factor3];
-            if normalize_per_spike == true
+            if normalize_per_spike == "spikes"
                 mean_number_spikes_at_t0 = mean(word_history_struct_spikes_per_word(:,t0));
                 if mean_number_spikes_at_t0 > 0
                     new_summand = prob_word_wt_at_time_t(w,t0,word_history_struct_encoded) * factor2 * factor3 / mean_number_spikes_at_t0;
                 elseif mean_number_spikes_at_t0 == 0
                     new_summand = 0;
                 end
-            else
+            elseif normalize_per_spike == "cell_number"
+                new_summand = prob_word_wt_at_time_t(w,t0,word_history_struct_encoded) * factor2 * factor3 / number_cells_in_group;
+            elseif normalize_per_spike == false
                 new_summand = prob_word_wt_at_time_t(w,t0,word_history_struct_encoded) * factor2 * factor3;
             end
             

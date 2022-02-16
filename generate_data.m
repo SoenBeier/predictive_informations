@@ -1,8 +1,8 @@
 import retina_cell
 
-name_cells_load_data = "number_cells-10cells_data";
-prefix = "2Bars_bei_0_10_und_-10_"; % to add easily something to the name of the data file
-graphic = false;
+name_cells_load_data = "";
+prefix = "m2"; % to add easily something to the name of the data file
+graphic = true;
 position_obj1 = [0,0]; %startposition [x,y] in pixel
 %position_obj2 = [-10,0]; %for 2 obj
 %position_obj3 = [0,0]; %for 2 obj
@@ -15,7 +15,7 @@ bar_width = 11;
 bar_height = 1;
 number_of_runs = 10000;
 duration_experiment = 100; %timesteps
-number_cells = 10;
+number_cells = 50;
 minimum_radius_cells = 50;
 maximum_radius_cells = 60;
 y_history_list = [];
@@ -25,6 +25,7 @@ cell_position_area = {[0,0],100}; %{[xcenter,ycenter],radius} of area in which t
 gamma = 20 / 60; %damping
 omega = 2*pi*1.5 /60; %natural frequency 
 D = 2.7e6 / 60^3; 
+m = 2;
 
 close;
 
@@ -41,9 +42,13 @@ for h = 1:number_of_runs
     y_history = [];
     for i = 1:duration_experiment
         %compute next positions
-        [position_obj1,velocity1] = compute_next_position(position_obj1,velocity1,gamma, omega, D);
-        %[position_obj2,velocity2] = compute_next_position(position_obj2,velocity2,gamma, omega, D); %for 2 obj
-        %[position_obj3,velocity3] = compute_next_position(position_obj3,velocity3,gamma, omega, D); %for 2 obj
+        [position_obj1,velocity1] = compute_next_position(position_obj1,velocity1,gamma, omega, D,m);
+        %[position_obj2,velocity2] = compute_next_position(position_obj2,velocity2,gamma, omega, D,m); %for 2 obj
+        %[position_obj3,velocity3] = compute_next_position(position_obj3,velocity3,gamma, omega, D,m); %for 2 obj
+        
+        if or(position_obj1(2) > 150 , position_obj1(2) < -150)
+            warning("Balken hat Grenze überschritten " + string(position_obj1(2)));
+        end
         
         y_history(end+1) = position_obj1(2);
         y_history_list(end+1) = position_obj1(2);
@@ -83,11 +88,11 @@ save(prefix +"number_cells-" + num2str(number_cells) + "duration_experiment-" + 
 
  
 
-function [position,velocity] = compute_next_position(position, velocity, gamma, omega, D) %compute next position of bar
+function [position,velocity] = compute_next_position(position, velocity, gamma, omega, D, m) %compute next position of bar
 xi = random('Normal',0,1);
 
 position(2) = round(position(2) + velocity(2) * 1);
-velocity(2) = (1 - gamma * 1) * velocity(2) - omega^2 * position(2)*1 + xi * sqrt(D*1);
+velocity(2) = (1 - gamma / m * 1) * velocity(2) - omega^2 / m * position(2)*1 + xi / m * sqrt(D*1);
 
 end
 function cell_creating_struct = create_cell_creating_struct(Number,picture_width,picture_height,min_radius,max_radius,cell_position_area)
